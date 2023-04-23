@@ -4,7 +4,7 @@ CXXFLAGS = -Wall -Wextra -Werror -g3 -fsanitize=address
 
 OBJ_DIR = obj/
 
-SRC = main.cpp
+SRC = main.cpp otp_generator.cpp
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.cpp=.o))
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "otp_generator.hpp"
 
 void parse_key(const std::string& key) 
 {
@@ -43,4 +44,6 @@ int main(int argc, char **argv) {
     std::cout << "[!] Incorrect Flag" << std::endl;
     exit(1);
   }
+	Otp_Generator otp("File_key.txt");
+	std::cout << "Time_token " << otp.get_time_now(30) << std::endl;
 }
