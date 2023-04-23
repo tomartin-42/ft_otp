@@ -10,7 +10,7 @@ void parse_key(const std::string& key)
     std::cout << "[!] Key length must be 64 characters" << std::endl;
     exit(1);
   }
-  for(int i = 0; i < key.length(); i++)
+  for(size_t i = 0; i < key.length(); i++)
     parser_key[i] = toupper(key[i]);
   size_t finded = parser_key.find_first_not_of(exa);
     if (finded == std::string::npos) 
