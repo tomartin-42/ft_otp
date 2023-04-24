@@ -1,6 +1,6 @@
 NAME = ft_otp
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -g3 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -g3 -fsanitize=address -lssl -lcrypto
 
 OBJ_DIR = obj/
 

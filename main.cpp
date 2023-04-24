@@ -1,3 +1,4 @@
+#include <vector>
 #include <iostream>
 #include <string>
 #include "otp_generator.hpp"
@@ -45,5 +46,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
 	Otp_Generator otp("File_key.txt");
-	std::cout << "Time_token " << otp.get_time_now(30) << std::endl;
+	std::string time_token = otp.get_time_now(30);
+	std::cout << "Time_token " << time_token << std::endl;
+	std::vector<unsigned char> hash = otp.sha_1("12345abcdef09876", time_token);
+	int offset = otp.get_4_bits_offset(hash);
+	int bin_code = otp.get_bin_code(offset, hash);
+	int otp_code = otp.get_totp(bin_code, 6);
+	std::cout << "OTP code: " << otp_code << std::endl;
 }
