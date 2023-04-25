@@ -23,6 +23,10 @@ std::vector<unsigned char> Otp_Generator::hmac_sha1(const std::string& key, cons
     HMAC(EVP_sha1(), &key_vec[0], key_vec.size(), &time_token_vec[0], time_token_vec.size(), &result[0], &len);
 
     result.resize(len);
+    for (const auto& c : result) {
+        std::cout << c;
+    }
+	std::cout << std::endl;
     return result;
 }
 
