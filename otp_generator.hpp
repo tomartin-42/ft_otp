@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <openssl/hmac.h>
+#include <openssl/evp.h>
 #include <openssl/sha.h>
 
 
@@ -27,7 +29,7 @@ class Otp_Generator
 	public:
 		std::string time_token;
 
-		std::vector<unsigned char> sha_1(const std::string& key, const std::string& time_token);
+		std::vector<unsigned char> hmac_sha1(const std::string& key, const std::string& time_token);
 		Otp_Generator(const std::string& file_key);
 		std::string get_time_now(const int interval);
 		int get_4_bits_offset(const std::vector<unsigned char>& hash);
