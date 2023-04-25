@@ -2,8 +2,21 @@
 
 std::vector<unsigned char> Otp_Generator::hmac_sha1(const std::string& key, const std::string& time_token)
 {
-    std::vector<unsigned char> key_vec(key.begin(), key.end());
-    std::vector<unsigned char> time_token_vec(time_token.begin(), time_token.end());
+    //std::vector<unsigned char> key_vec(key.begin(), key.end());
+    //std::vector<unsigned char> time_token_vec(time_token.begin(), time_token.end());
+
+    std::vector<unsigned char> key_vec(key.size());
+    std::copy(key.begin(), key.end(), key_vec.begin());
+    for (const auto& c : key_vec) {
+        std::cout << c;
+    }
+	std::cout << std::endl;
+    std::vector<unsigned char> time_token_vec(time_token.size());
+    std::copy(time_token.begin(), time_token.end(), time_token_vec.begin());
+    for (const auto& c : time_token_vec) {
+        std::cout << c;
+    }
+	std::cout << std::endl;
 
     std::vector<unsigned char> result(EVP_MAX_MD_SIZE);
     unsigned int len = 0;
