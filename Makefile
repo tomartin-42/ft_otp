@@ -1,6 +1,14 @@
-NAME = ft_otp
-CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -g3 -fsanitize=address -lssl -lcrypto
+NAME 		= ft_otp
+
+LIBS		= -L/Users/tomartin/homebrew/Cellar/openssl@3/3.1.0/lib
+INCLUDE 	= -I/Users/tomartin/homebrew/Cellar/openssl@3/3.1.0/include/
+
+CXXSTD		= -std=c++17
+SANITIZE	= -fsanitize=address	
+CXX 		= g++
+CXXFLAGS 	= -Wall -Wextra -Werror -g3 $(SANITIZE) $(INCLUDE) $(CXXSTD)
+LDFLAGS 	= -lssl -lcrypto $(LIBS) $(SANITIZE)
+
 
 OBJ_DIR = obj/
 
@@ -17,7 +25,7 @@ $(OBJ_DIR)%.o: %.cpp | obj
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
-	@$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+	@$(CXX) $(LDFLAGS) $(OBJ) -o $(NAME)
 
 clean:
 	@rm -rf $(OBJ_DIR)
