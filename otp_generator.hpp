@@ -4,6 +4,8 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
+#include <openssl/rsa.h>
+#include <openssl/pem.h>
 #include <string>
 #include <vector>
 
@@ -24,23 +26,30 @@
 
 class Otp_Generator {
 private:
+	std::string clave = "tomartin";
+	std::string iv = "1234567890abcdefxyz";;
+
+	std::string encript_key(const std::string &key);
+
+
 public:
-  std::string time_token;
+	std::string hex_to_string(const std::string &input);
+	std::string time_token;
 
-  std::vector<unsigned char> hmac_sha1(const std::string &key,
+	std::vector<unsigned char> hmac_sha1(const std::string &key,
                                        const time_t time_token);
-  Otp_Generator(const std::string &file_key);
-  std::string get_time_now(const int interval);
-  int get_4_bits_offset(const std::vector<unsigned char> &hash);
-  int get_bin_code(const int offset, const std::vector<unsigned char> &hash);
-  int get_totp(const int bin_code, const int digits);
+	Otp_Generator(const std::string &file_key);
+	std::string get_time_now(const int interval);
+	int get_4_bits_offset(const std::vector<unsigned char> &hash);
+	int get_bin_code(const int offset, const std::vector<unsigned char> &hash);
+	int get_totp(const int bin_code, const int digits);
 
-  std::vector<unsigned char> hex_to_bytes(const std::string &hex);
+	std::vector<unsigned char> hex_to_bytes(const std::string &hex);
 
-  std::vector<unsigned char> time_converter_pig(time_t time);
-  std::string ToHex(std::vector<unsigned char> &vect);
+	std::vector<unsigned char> time_converter_pig(time_t time);
+	std::string ToHex(std::vector<unsigned char> &vect);
 
-  static std::vector<unsigned char>
-  conver_to_unsigned_char(const std::string &str);
-  static std::string conver_to_string(const std::vector<unsigned char> &vec);
+	static std::vector<unsigned char>
+	conver_to_unsigned_char(const std::string &str);
+	static std::string conver_to_string(const std::vector<unsigned char> &vec);
 };

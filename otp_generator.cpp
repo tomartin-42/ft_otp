@@ -11,26 +11,14 @@ std::vector<unsigned char> Otp_Generator::hmac_sha1(const std::string &key,
   std::cout << std::endl;
   std::vector<unsigned char> time_token_vec =
       this->time_converter_pig(time_token);
-
-  std::cout << "TIME " << time_token_vec.size() << std::endl;
-  for (const auto &c : time_token_vec) {
-    std::cout << c;
-  }
-  std::cout << std::endl;
-
   std::vector<unsigned char> result(SHA_DIGEST_LENGTH);
+
   unsigned int len = 0;
   HMAC(EVP_sha1(), reinterpret_cast<unsigned char *>(&key_vec[0]),
        key_vec.size(), reinterpret_cast<unsigned char *>(&time_token_vec[0]),
        time_token_vec.size(), &result[0], &len);
 
-  std::cout << "LEN " << len << std::endl;
-  std::cout << this->ToHex(result) << std::endl;
   result.resize(len);
-  for (const auto &c : result) {
-    std::cout << c;
-  }
-  std::cout << std::endl;
   return result;
 }
 
@@ -52,24 +40,41 @@ std::vector<unsigned char> Otp_Generator::time_converter_pig(time_t time) {
   }
   return res_vec;
 }
-/*
-std::vector<unsigned unsigned char> Otp_Generator::sha_1(const std::string& key,
-const std::string& time_token)
-{
-        std::vector<unsigned unsigned char> key_vec(key.begin(), key.end());
-        std::vector<unsigned unsigned char> time_token_vec(time_token.begin(),
-time_token.end()); key_vec.insert(key_vec.end(), time_token_vec.begin(),
-time_token_vec.end());
 
-        std::vector<unsigned unsigned char> hash(20);
-        SHA1(&key_vec[0], key_vec.size(), &hash[0]);
-        return hash;
-}*/
-/*
-Otp_Generator::Otp_Generator(const std::string &file_key) {
-  std::cout << "File key: " << file_key << std::endl;
+std::string Otp_Generator::hex_to_string(const std::string &input)
+{
+	std::string output;
+	for (size_t i = 0; i < input.length(); i += 2)
+	{
+		std::string byte = input.substr(i, 2);
+		char chr = (char)(int)strtol(byte.c_str(), NULL, 16);
+		output.push_back(chr);
+	}
+	return output;
 }
-*/
+
+std::string Otp_Generator::encript_key(const std::string &key)
+{
+	// Inicializa el contexto de cifrado AES
+    EVP_CIPHER_CTX* context = EVP_CIPHER_CTX_new();
+    EVP_CIPHER_CTX_init(context);
+    EVP_EncryptInit_ex(context, EVP_aes_256_cbc(), nullptr, reinterpret_cast<const unsigned char*>(this->clave.c_str()), nullptr);
+
+	// Cifra la clave
+	std::vector<unsigned char> cifrado(key.size() + EVP_MAX_BLOCK_LENGTH);
+    int cifrado_len = 0;
+    EVP_EncryptUpdate(context, cifrado.data(), &cifrado_len, reinterpret_cast<const unsigned char*>(key.c_str()), key.size());
+    int cifrado_final_len = 0;
+    EVP_EncryptFinal_ex(context, cifrado.data() + cifrado_len, &cifrado_final_len);
+    cifrado_len += cifrado_final_len;
+
+    // Limpia contexto
+    EVP_CIPHER_CTX_free(context);
+
+	// Devuelve la clave cifrada
+    return std::string(cifrado.begin(), cifrado.end());
+}
+
 Otp_Generator::Otp_Generator(const std::string &file_key) {
   std::cout << "File key: " << file_key << std::endl;
   // key_ = hex_to_bytes(file_key);

@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
                                             // hexadecimal
   std::string time_token = "0";             // valor del tiempo en hexadecimal
 
+  otp.hex_to_string("31323334353637383930313233343536373839300a");
   std::vector<unsigned char> hash = otp.hmac_sha1(key, time(nullptr) / 30);
   int offset = otp.get_4_bits_offset(hash);
   int bin_code = otp.get_bin_code(offset, hash);
