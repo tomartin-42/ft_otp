@@ -12,7 +12,7 @@ LDFLAGS 	= -lssl -lcrypto $(LIBS) $(SANITIZE)
 
 OBJ_DIR = obj/
 
-SRC = main.cpp otp_generator.cpp
+SRC = main.cpp otp_generator.cpp AES_g.cpp
 
 OBJ = $(addprefix $(OBJ_DIR), $(SRC:.cpp=.o))
 
