@@ -41,38 +41,32 @@ std::vector<unsigned char> Otp_Generator::time_converter_pig(time_t time) {
   return res_vec;
 }
 
-std::string Otp_Generator::hex_to_string(const std::string &input)
-{
-	std::string output;
-	for (size_t i = 0; i < input.length(); i += 2)
-	{
-		std::string byte = input.substr(i, 2);
-		char chr = (char)(int)strtol(byte.c_str(), NULL, 16);
-		output.push_back(chr);
-	}
-	return output;
+std::string Otp_Generator::hex_to_string(const std::string &input) {
+  std::string output;
+  for (size_t i = 0; i < input.length(); i += 2) {
+    std::string byte = input.substr(i, 2);
+    char chr = (char)(int)strtol(byte.c_str(), NULL, 16);
+    output.push_back(chr);
+  }
+  return output;
 }
 
-std::string Otp_Generator::encript_key(const std::string &key)
-{
-	// Inicializa el contexto de cifrado AES
-    EVP_CIPHER_CTX* context = EVP_CIPHER_CTX_new();
-    EVP_CIPHER_CTX_init(context);
-    EVP_EncryptInit_ex(context, EVP_aes_256_cbc(), nullptr, reinterpret_cast<const unsigned char*>(this->clave.c_str()), nullptr);
+std::string Otp_Generator::xor_encript(const std::string &key) {
+  std::string hash;
 
-	// Cifra la clave
-	std::vector<unsigned char> cifrado(key.size() + EVP_MAX_BLOCK_LENGTH);
-    int cifrado_len = 0;
-    EVP_EncryptUpdate(context, cifrado.data(), &cifrado_len, reinterpret_cast<const unsigned char*>(key.c_str()), key.size());
-    int cifrado_final_len = 0;
-    EVP_EncryptFinal_ex(context, cifrado.data() + cifrado_len, &cifrado_final_len);
-    cifrado_len += cifrado_final_len;
+  for (size_t i = 0; i < key.size(); ++i) {
+    hash.push_back(key[i] ^ this->clave[i % this->clave.size()]);
+  }
+  return hash;
+}
 
-    // Limpia contexto
-    EVP_CIPHER_CTX_free(context);
+std::string Otp_Generator::xor_desencript(const std::string &key) {
+  std::string plain_txt;
 
-	// Devuelve la clave cifrada
-    return std::string(cifrado.begin(), cifrado.end());
+  for (size_t i = 0; i < key.size(); ++i) {
+    plain_txt.push_back(key[i] ^ this->clave[i % this->clave.size()]);
+  }
+  return plain_txt;
 }
 
 Otp_Generator::Otp_Generator(const std::string &file_key) {
