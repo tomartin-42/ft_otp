@@ -31,8 +31,11 @@ private:
   std::string clave = "tomartin";
 
 public:
-  std::string xor_encript(const std::string &key);
-  std::string xor_desencript(const std::string &key);
+  Otp_Generator(const std::string &file_key);
+  Otp_Generator();
+
+//  std::string xor_encript(const std::string &key);
+//  std::string xor_desencript(const std::string &key);
 
   void write_key(const std::string &key);
   std::string read_key();
@@ -42,7 +45,6 @@ public:
 
   std::vector<unsigned char> hmac_sha1(const std::string &key,
                                        const time_t time_token);
-  Otp_Generator(const std::string &file_key);
   std::string get_time_now(const int interval);
   int get_4_bits_offset(const std::vector<unsigned char> &hash);
   int get_bin_code(const int offset, const std::vector<unsigned char> &hash);
@@ -56,4 +58,5 @@ public:
   static std::vector<unsigned char>
   conver_to_unsigned_char(const std::string &str);
   static std::string conver_to_string(const std::vector<unsigned char> &vec);
+  void check_if_hash_hex(const std::string &hash);
 };

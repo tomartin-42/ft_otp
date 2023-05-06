@@ -50,7 +50,7 @@ std::string Otp_Generator::hex_to_string(const std::string &input) {
   }
   return output;
 }
-
+/*
 std::string Otp_Generator::xor_encript(const std::string &key) {
   std::string hash;
 
@@ -68,10 +68,38 @@ std::string Otp_Generator::xor_desencript(const std::string &key) {
   }
   return plain_txt;
 }
+*/
+
+void Otp_Generator::check_if_hash_hex(const std::string &hash) {
+  std::string_view base16_ = "0123456789abcdef";
+  for (const auto &c : hash) {
+    if (base16_.find(c) == std::string::npos) {
+      std::cout << "[!] Hash is not in hexadecimal format" << std::endl;
+      exit(1);
+    }
+  }
+}
 
 Otp_Generator::Otp_Generator(const std::string &file_key) {
   std::cout << "File key: " << file_key << std::endl;
-  // key_ = hex_to_bytes(file_key);
+  std::string read_hash = this->aes.read_key(file_key);
+  this->check_if_hash_hex(read_hash);
+  this->aes.write_key(this->aes.encryptAES(read_hash));
+}
+
+Otp_Generator::Otp_Generator() {
+  std::string read_hash = this->aes.read_key("ft_otp.key");
+  std::string hash_key = this->aes.decryptAES(read_hash);
+  std::cout << "Hash key: " << hash_key << std::endl;
+  std::string plain_key = this->hex_to_string(hash_key);
+  std::cout << "Plain key: " << plain_key << std::endl;
+  //std::vector<unsigned char> code = this->hmac_sha1(plain_key, time(0) / 30);
+  std::vector<unsigned char> code = this->hmac_sha1(plain_key, 0);
+  int offset = this->get_4_bits_offset(code);
+  int bin_code = this->get_bin_code(offset, code);
+  int otp = this->get_totp(bin_code, 6);
+  std::cout << "OTP: " << otp << std::endl;
+  
 }
 
 std::string Otp_Generator::get_time_now(const int interval) {
