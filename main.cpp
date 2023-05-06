@@ -1,4 +1,5 @@
 #include "otp_generator.hpp"
+#include "AES_g.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,11 +44,16 @@ int main(int argc, char **argv) {
   (void)argv;
   (void)argc;
 
+  AES_g aes;
   Otp_Generator otp("HOLA");
 
   std::string key = "12345678901234567890"; // clave en formato
                                             // hexadecimal
   std::string time_token = "0";             // valor del tiempo en hexadecimal
+
+  std::string test = aes.encryptAES(std::string("ABCDEFG"));
+  std::cout << "AES CRYPT: " << test<< std::endl;
+  std::cout << "AES DECRYPT: " << aes.descryptAES(test) << std::endl;
 
   otp.hex_to_string("31323334353637383930313233343536373839300a");
   std::vector<unsigned char> hash = otp.hmac_sha1(key, time(nullptr) / 30);
