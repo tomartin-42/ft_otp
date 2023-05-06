@@ -8,6 +8,7 @@
 #include <openssl/sha.h>
 #include <string>
 #include <vector>
+#include "AES_g.hpp"
 
 // Class Otp_Generator
 // This class is used to generate OTP temporally keys
@@ -26,6 +27,7 @@
 
 class Otp_Generator {
 private:
+  AES_g aes;
   std::string clave = "tomartin";
 
 public:
