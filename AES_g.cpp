@@ -6,7 +6,7 @@ void AES_g::write_key(const std::string &key) {
     if (!file) {
       throw std::runtime_error("Error al abrir el archivo");
     }
-
+	std::cout << "write: " << key << std::endl;
     file << key;
     file.close();
   } catch (std::exception &e) {
@@ -124,19 +124,16 @@ std::string AES_g::decryptAES(std::string& key_a) {
     delete[] plaintext;
     return "";
   }
-  std::cout << "len: " << len << std::endl;
   plaintext_len = len;
-
-  std::cout << "plaintext_len: " << plaintext_len << std::endl;
 
   /* Finalise the decryption. Further plaintext bytes may be written at
    * this stage.
    */
   if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
-    //std::cout << "Error al finalizar la desencriptacion" << std::endl;
-    //EVP_CIPHER_CTX_free(ctx);
-    //delete[] plaintext;
-    //return "";
+    std::cout << "Error al finalizar la desencriptacion" << std::endl;
+    EVP_CIPHER_CTX_free(ctx);
+    delete[] plaintext;
+    return "";
   }
   plaintext_len += len;
 

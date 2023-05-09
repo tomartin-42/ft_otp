@@ -83,23 +83,26 @@ void Otp_Generator::check_if_hash_hex(const std::string &hash) {
 Otp_Generator::Otp_Generator(const std::string &file_key) {
   std::cout << "File key: " << file_key << std::endl;
   std::string read_hash = this->aes.read_key(file_key);
+  std::cout << "Read hash: " << read_hash << std::endl;
   this->check_if_hash_hex(read_hash);
-  this->aes.write_key(this->aes.encryptAES(read_hash));
+  std::string to_write = this->aes.encryptAES(read_hash);
+  std::cout << "To write: " << to_write << std::endl;
+  this->aes.write_key(to_write);
 }
 
 Otp_Generator::Otp_Generator() {
   std::string read_hash = this->aes.read_key("ft_otp.key");
+  std::cout << "Read hash: " << read_hash << std::endl;
   std::string hash_key = this->aes.decryptAES(read_hash);
   std::cout << "Hash key: " << hash_key << std::endl;
   std::string plain_key = this->hex_to_string(hash_key);
   std::cout << "Plain key: " << plain_key << std::endl;
-  //std::vector<unsigned char> code = this->hmac_sha1(plain_key, time(0) / 30);
-  std::vector<unsigned char> code = this->hmac_sha1(plain_key, 0);
+  std::vector<unsigned char> code = this->hmac_sha1(plain_key, time(0) / 30);
+  //std::vector<unsigned char> code = this->hmac_sha1(plain_key, 0);
   int offset = this->get_4_bits_offset(code);
   int bin_code = this->get_bin_code(offset, code);
   int otp = this->get_totp(bin_code, 6);
   std::cout << "OTP: " << otp << std::endl;
-  
 }
 
 std::string Otp_Generator::get_time_now(const int interval) {
