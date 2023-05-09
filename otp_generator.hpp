@@ -28,7 +28,8 @@
 class Otp_Generator {
 private:
   AES_g aes;
-  std::string clave = "tomartin";
+  const std::string key = "tomartin";
+  const std::string iv = "1234567890xyz";
 
 public:
   Otp_Generator(const std::string &file_key);
@@ -36,6 +37,8 @@ public:
 
 //  std::string xor_encript(const std::string &key);
 //  std::string xor_desencript(const std::string &key);
+
+  std::string test(const std::string &key);
 
   void write_key(const std::string &key);
   std::string read_key();

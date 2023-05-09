@@ -84,8 +84,8 @@ Otp_Generator::Otp_Generator(const std::string &file_key) {
   std::cout << "File key: " << file_key << std::endl;
   std::string read_hash = this->aes.read_key(file_key);
   std::cout << "Read hash: " << read_hash << std::endl;
-  this->check_if_hash_hex(read_hash);
-  std::string to_write = this->aes.encryptAES(read_hash);
+  //this->check_if_hash_hex(read_hash);
+  std::string to_write = this->aes.encrypt(read_hash, key, iv);
   std::cout << "To write: " << to_write << std::endl;
   this->aes.write_key(to_write);
 }
@@ -93,7 +93,8 @@ Otp_Generator::Otp_Generator(const std::string &file_key) {
 Otp_Generator::Otp_Generator() {
   std::string read_hash = this->aes.read_key("ft_otp.key");
   std::cout << "Read hash: " << read_hash << std::endl;
-  std::string hash_key = this->aes.decryptAES(read_hash);
+  std::string hash_key = this->aes.decrypt(read_hash, key, iv);
+  //std::string hash_key = "3132333435363738393031323334353637383930";
   std::cout << "Hash key: " << hash_key << std::endl;
   std::string plain_key = this->hex_to_string(hash_key);
   std::cout << "Plain key: " << plain_key << std::endl;

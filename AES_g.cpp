@@ -1,156 +1,129 @@
 #include "AES_g.hpp"
 
-void AES_g::write_key(const std::string &key) {
-  try {
-    std::ofstream file("ft_otp.key");
-    if (!file) {
-      throw std::runtime_error("Error al abrir el archivo");
-    }
-	std::cout << "write: " << key << std::endl;
-    file << key;
-    file.close();
-  } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
-    exit(1);
+void AES_g::write_key(const std::string& ciphertext) {
+  std::ofstream file("ft_otp.key", std::ios::binary);
+  if (!file) {
+    throw std::runtime_error("Error al abrir el archivo");
   }
+
+  if (!file.write(ciphertext.data(), ciphertext.size())) {
+    throw std::runtime_error("Error al escribir en el archivo");
+  }
+
+  file.close();
 }
 
-std::string AES_g::read_key(const std::string &path) {
-  std::string hash;
-  try {
-    std::ifstream file(path);
-    if (!file) {
-      throw std::runtime_error("Error al abrir el archivo");
-    }
 
-    file >> hash;
-    file.close();
-  } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
-    exit(1);
+std::string AES_g::read_key(const std::string& path) {
+  std::ifstream file(path, std::ios::binary);
+  if (!file) {
+    throw std::runtime_error("Error al abrir el archivo");
   }
-  std::cout << "read key AES_read: " << hash << std::endl;
-  return hash;
+
+  // Obtener el tamaño del archivo
+  file.seekg(0, std::ios::end);
+  std::streampos file_size = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  // Leer el contenido del archivo en una cadena
+  std::string ciphertext(static_cast<std::size_t>(file_size), '\0');
+  if (!file.read(&ciphertext[0], file_size)) {
+    throw std::runtime_error("Error al leer el archivo");
+  }
+
+  file.close();
+  return ciphertext;
 }
 
-std::string AES_g::encryptAES(const std::string &key) {
-  EVP_CIPHER_CTX *ctx;
-  unsigned char *ciphertext = new unsigned char[key.length() + EVP_CIPHER_block_size(EVP_aes_256_cbc())];
-  int len = 0;
-  int ciphertext_len = 0;
+std::string AES_g::encrypt(const std::string& plaintext, const std::string& key, const std::string& iv) {
+    // Inicializar la clave y el IV
+    const unsigned char* key_data = reinterpret_cast<const unsigned char*>(key.c_str());
+    const unsigned char* iv_data = reinterpret_cast<const unsigned char*>(iv.c_str());
 
-  /* Create and initialise the context */
-  if (!(ctx = EVP_CIPHER_CTX_new())) {
-    std::cout << "Error al crear el contexto" << std::endl;
-    exit(1);
+    // Crear el contexto de cifrado
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (ctx == nullptr) {
+        throw std::runtime_error("No se pudo crear el contexto de cifrado.");
+    }
+
+    // Inicializar el contexto de cifrado con la clave y el IV
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key_data, iv_data) != 1) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("No se pudo inicializar el contexto de cifrado.");
+    }
+
+    // Cifrar el texto plano
+    std::string ciphertext(plaintext.size() + AES_BLOCK_SIZE, '\0');
+    int ciphertext_len = 0;
+    if (EVP_EncryptUpdate(ctx, reinterpret_cast<unsigned char*>(&ciphertext[0]), &ciphertext_len, reinterpret_cast<const unsigned char*>(plaintext.c_str()), plaintext.size()) != 1) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Error de cifrado.");
+    }
+
+    // Finalizar el cifrado y obtener los bytes finales
+    int final_len = 0;
+    if (EVP_EncryptFinal_ex(ctx, reinterpret_cast<unsigned char*>(&ciphertext[ciphertext_len]), &final_len) != 1) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("Error de cifrado.");
+    }
+    ciphertext_len += final_len;
+
+    // Agregar relleno PKCS7
+    int padding_len = AES_BLOCK_SIZE - (ciphertext_len % AES_BLOCK_SIZE);
+    if (padding_len > 0) {
+        std::fill_n(std::back_inserter(ciphertext), padding_len, static_cast<char>(padding_len));
+        ciphertext_len += padding_len;
+    }
+
+
+    // Liberar el contexto de cifrado
+    EVP_CIPHER_CTX_free(ctx);
+
+    // Devolver el texto cifrado como una cadena
+    return ciphertext.substr(0, ciphertext_len);
+}
+
+std::string AES_g::decrypt(const std::string& ciphertext, const std::string& key, const std::string& iv) {
+    // Inicializar la clave y el IV
+    const unsigned char* key_data = reinterpret_cast<const unsigned char*>(key.c_str());
+    const unsigned char* iv_data = reinterpret_cast<const unsigned char*>(iv.c_str());
+
+    // Crear el contexto de descifrado
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (ctx == nullptr) {
+        throw std::runtime_error("No se pudo crear el contexto de descifrado.");
+    }
+
+    // Inicializar el contexto de descifrado con la clave y el IV
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key_data, iv_data) != 1) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("No se pudo inicializar el contexto de descifrado.");
+    }
+
+    // Descifrar el texto cifrado
+    std::string plaintext(ciphertext.size(), '\0');
+    int plaintext_len = 0;
+    if (EVP_DecryptUpdate(ctx, reinterpret_cast<unsigned char*>(&plaintext[0]), &plaintext_len, reinterpret_cast<const unsigned char*>(ciphertext.c_str()), ciphertext.size()) != 1) {
+        EVP_CIPHER_CTX_free(ctx);
+        throw std::runtime_error("1Error de descifrado.");
+    }
+
+  // Finalizar el descifrado y obtener los bytes finales
+  int final_len = 0;
+  if (EVP_DecryptFinal_ex(ctx, reinterpret_cast<unsigned char*>(&plaintext[plaintext_len]), &final_len) != 1) {
+      EVP_CIPHER_CTX_free(ctx);
+      throw std::runtime_error("2Error de descifrado.");
   }
+  plaintext_len += final_len;
 
-  /* Initialise the encryption operation. */
-  if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL,
-                              (unsigned char *)this->clave.c_str(),
-                              (unsigned char *)this->iv.c_str())) {
-    std::cout << "Error al inicializar la operacion de encriptacion"
-              << std::endl;
-    exit(1);
-  }
-
-  /* Provide the message to be encrypted, and obtain the encrypted output.
-   * EVP_EncryptUpdate can be called multiple times if necessary
-   */
-  if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len,
-                             (unsigned char *)key.c_str(), key.length())) {
-    std::cout << "Error al encriptar" << std::endl;
-    exit(1);
-  }
-  ciphertext_len = len;
-
-  /* Finalise the encryption. Further ciphertext bytes may be written at
-   * this stage.
-   */
-  if (1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) {
-    std::cout << "Error al finalizar la encriptacion" << std::endl;
-    exit(1);
-  }
-  ciphertext_len += len;
-
-  /* Clean up */
+  // Liberar el contexto de descifrado
   EVP_CIPHER_CTX_free(ctx);
 
-  std::string cipher;
-  for (int i = 0; i < ciphertext_len; ++i) {
-    cipher.push_back(ciphertext[i]);
-  }
-  cipher.push_back('\0');
+  // Devolver el texto plano como una cadena
+  return plaintext.substr(0, plaintext_len);
 
-  delete[] ciphertext;
-
-  return this->base64_encode(cipher);
 }
-
-std::string AES_g::decryptAES(std::string& key_a) {
-  EVP_CIPHER_CTX *ctx;
-  std::string key = this->base64_decode(key_a);
-  unsigned char *plaintext =
-      new unsigned char[key.length() +
-                        EVP_CIPHER_block_size(EVP_aes_256_cbc())];
-  int len = 0;
-  int plaintext_len = 0;
-
-  /* Create and initialise the context */
-  if (!(ctx = EVP_CIPHER_CTX_new())) {
-    std::cout << "Error al crear el contexto" << std::endl;
-    delete[] plaintext;
-    return "";
-  }
-
-  /* Initialise the decryption operation. */
-  if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr,
-                              (unsigned char *)this->clave.c_str(),
-                              (unsigned char *)this->iv.c_str())) {
-    std::cout << "Error al inicializar la operacion de desencriptacion"
-              << std::endl;
-    EVP_CIPHER_CTX_free(ctx);
-    delete[] plaintext;
-    return "";
-  }
-
-  /* Provide the message to be decrypted, and obtain the plaintext output.
-   * EVP_DecryptUpdate can be called multiple times if necessary
-   */
-  if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, (unsigned char *)key.c_str(),
-                             key.length())) {
-    std::cout << "Error al desencriptar" << std::endl;
-    EVP_CIPHER_CTX_free(ctx);
-    delete[] plaintext;
-    return "";
-  }
-  plaintext_len = len;
-
-  /* Finalise the decryption. Further plaintext bytes may be written at
-   * this stage.
-   */
-  if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
-    std::cout << "Error al finalizar la desencriptacion" << std::endl;
-    EVP_CIPHER_CTX_free(ctx);
-    delete[] plaintext;
-    return "";
-  }
-  plaintext_len += len;
-
-  /* Clean up */
-  EVP_CIPHER_CTX_free(ctx);
-
-  std::string decipher;
-  for (int i = 0; i < plaintext_len; ++i) {
-    decipher.push_back(plaintext[i]);
-  }
-  decipher.push_back('\0');
-
-  delete[] plaintext;
-
-  return decipher;
-}
-
+/*
 std::string AES_g::base64_encode(const std::string &input) {
   BIO *bio, *b64;
   BUF_MEM *bufferPtr;
@@ -185,3 +158,4 @@ std::string AES_g::base64_decode(const std::string &input) {
 
   return result;
 }
+*/
