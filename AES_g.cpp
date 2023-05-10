@@ -13,7 +13,6 @@ void AES_g::write_key(const std::string& ciphertext) {
   file.close();
 }
 
-
 std::string AES_g::read_key(const std::string& path) {
   std::ifstream file(path, std::ios::binary);
   if (!file) {

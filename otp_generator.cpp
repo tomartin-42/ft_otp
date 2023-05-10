@@ -50,6 +50,7 @@ std::string Otp_Generator::hex_to_string(const std::string &input) {
   }
   return output;
 }
+
 void Otp_Generator::check_if_hash_hex(const std::string &hash) {
   std::string_view base16_ = "0123456789abcdef";
 
