@@ -17,5 +17,4 @@ public:
   std::string decrypt(const std::string& ciphertext, const std::string& key, const std::string& iv);
   void write_key(const std::string &key);
   std::string read_key(const std::string &file);
-
 };

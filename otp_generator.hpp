@@ -34,10 +34,6 @@ private:
 public:
   Otp_Generator(const std::string &file_key);
   Otp_Generator();
-  Otp_Generator(int i);
-
-//  std::string xor_encript(const std::string &key);
-//  std::string xor_desencript(const std::string &key);
 
   std::string test(const std::string &key);
 
