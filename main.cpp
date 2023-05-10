@@ -4,6 +4,11 @@
 #include <vector>
 
 int main(int argc, char **argv) {
+  /*
+  (void)argc;
+  (void)argv;
+  Otp_Generator otp(1);
+  */
   if (argc < 2) {
     std::cout << "Usage: " << argv[0] << " <flag> [<key>]" << std::endl;
     exit(1);

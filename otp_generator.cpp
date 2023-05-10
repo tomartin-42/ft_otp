@@ -106,6 +106,15 @@ Otp_Generator::Otp_Generator() {
   std::cout << "OTP: " << otp << std::endl;
 }
 
+Otp_Generator::Otp_Generator(int i) : key("12345678901234567890123456789012"),
+                                      iv("1234567890123456"){
+  (void)i;
+  std::string input = "1234567890";
+  std::string str_enc = this->aes.encrypt(input, key, iv);
+  std::string str_dec = this->aes.decrypt(str_enc, key, iv);
+  std::cout << "dec: " << str_dec << std::endl;
+}
+
 std::string Otp_Generator::get_time_now(const int interval) {
   time_t now = time(NULL);
   return std::to_string(now / interval);

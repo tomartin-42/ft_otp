@@ -68,14 +68,6 @@ std::string AES_g::encrypt(const std::string& plaintext, const std::string& key,
     }
     ciphertext_len += final_len;
 
-    // Agregar relleno PKCS7
-    int padding_len = AES_BLOCK_SIZE - (ciphertext_len % AES_BLOCK_SIZE);
-    if (padding_len > 0) {
-        std::fill_n(std::back_inserter(ciphertext), padding_len, static_cast<char>(padding_len));
-        ciphertext_len += padding_len;
-    }
-
-
     // Liberar el contexto de cifrado
     EVP_CIPHER_CTX_free(ctx);
 
