@@ -1,3 +1,4 @@
+#include "AES_g.hpp"
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -8,7 +9,6 @@
 #include <openssl/sha.h>
 #include <string>
 #include <vector>
-#include "AES_g.hpp"
 
 // Class Otp_Generator
 // This class is used to generate OTP temporally keys
@@ -30,12 +30,6 @@ private:
   AES_g aes;
   const std::string key;
   const std::string iv;
-
-public:
-  Otp_Generator(const std::string &file_key);
-  Otp_Generator();
-
-  std::string test(const std::string &key);
 
   void write_key(const std::string &key);
   std::string read_key();
@@ -59,4 +53,8 @@ public:
   conver_to_unsigned_char(const std::string &str);
   static std::string conver_to_string(const std::vector<unsigned char> &vec);
   void check_if_hash_hex(const std::string &hash);
+
+public:
+  Otp_Generator(const std::string &file_key);
+  Otp_Generator();
 };
