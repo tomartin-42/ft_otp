@@ -24,6 +24,11 @@
 // 6. Convert the 4 bytes to an unsigned integer
 // 7. Get the 6 digits from the unsigned integer
 // 8. Return the 6 digits
+//
+// echo -n "NEVER GONNA GIVE YOU UP" > key.txt
+// xxd -p -c256 key.txt > key.hex
+// ./ft_otp -g key.hex
+// ./ft_otp -k ft_otp.key
 
 class Otp_Generator {
 private:
