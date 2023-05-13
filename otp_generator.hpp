@@ -1,6 +1,7 @@
 #include "AES_g.hpp"
 #include <cmath>
 #include <ctime>
+#include <exception>
 #include <iostream>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
